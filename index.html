@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle TDH: Herramientas del Futuro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            perspective: 1000px;
+        }
+        .card-active {
+            transform: scale(1.05);
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        .card-matched {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9);
+        }
+        .card-error {
+            animation: shake 0.4s;
+            border-color: #ef4444;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 uppercase">
+                    Puzzle TDH 4.0
+                </h1>
+                <p class="text-slate-400 text-sm font-medium">Empareja la tecnología con su aplicación o concepto.</p>
+            </div>
+            <div class="flex gap-4 items-center">
+                <div class="bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
+                    <span class="text-[10px] block text-slate-500 font-bold uppercase tracking-widest">Puntos</span>
+                    <span id="score" class="text-xl font-mono font-bold text-blue-400">000</span>
+                </div>
+                <div class="bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
+                    <span class="text-[10px] block text-slate-500 font-bold uppercase tracking-widest">Nivel</span>
+                    <span id="level-display" class="text-xl font-mono font-bold text-emerald-400">1 / 3</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Game Info / Instructions -->
+        <div id="game-status" class="bg-blue-600/10 border border-blue-500/30 p-3 rounded-lg text-center mb-8 text-blue-300 text-sm font-medium">
+            Selecciona una tecnología y luego su definición o aplicación correspondiente.
+        </div>
+
+        <!-- Puzzle Grid -->
+        <div id="puzzle-grid" class="grid-cards min-h-[400px]">
+            <!-- Cards will be injected here -->
+        </div>
+
+        <!-- Level Completion Overlay (Hidden) -->
+        <div id="overlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+            <div class="bg-slate-900 p-10 rounded-3xl border border-slate-700 text-center max-w-sm w-full">
+                <div class="text-5xl mb-4">🏆</div>
+                <h2 id="overlay-title" class="text-2xl font-black mb-2">¡Nivel Completado!</h2>
+                <p id="overlay-msg" class="text-slate-400 mb-8 italic">Has dominado los conceptos base.</p>
+                <button onclick="nextLevel()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-all uppercase tracking-widest text-sm">
+                    Siguiente Desafío
+                </button>
+            </div>
+        </div>
+
+        <!-- Final Score Overlay (Hidden) -->
+        <div id="final-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center z-50 hidden">
+            <div class="text-center">
+                <h2 class="text-6xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500 uppercase italic">Misión Cumplida</h2>
+                <p class="text-blue-400 text-xl font-bold mb-8">Eres un Experto en Tecnologías Habilitadoras</p>
+                <div class="text-8xl font-black text-white mb-10" id="final-score-display">000</div>
+                <button onclick="location.reload()" class="bg-white text-slate-950 px-12 py-4 rounded-full font-black uppercase tracking-widest hover:scale-110 transition-transform">
+                    Reiniciar Entrenamiento
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gameLevels = [
+            {
+                title: "Nivel 1: Conceptos Base",
+                msg: "Has identificado las definiciones clave.",
+                pairs: [
+                    { id: 1, term: "Realidad Virtual", match: "Inmersión 100% digital." },
+                    { id: 2, term: "Realidad Aumentada", match: "Capas de datos sobre la realidad." },
+                    { id: 3, term: "Fabricación Aditiva", match: "Construcción capa a capa (3D)." },
+                    { id: 4, term: "Blockchain", match: "Notario digital inalterable." },
+                    { id: 5, term: "TDH", match: "Catalizadores de la transformación." },
+                    { id: 6, term: "Gemelo Digital", match: "Copia virtual de un motor real." }
+                ]
+            },
+            {
+                title: "Nivel 2: Solución de Problemas",
+                msg: "Sabes aplicar la tecnología al taller.",
+                pairs: [
+                    { id: 1, term: "Baterías 800V", match: "Entrenamiento seguro en RV." },
+                    { id: 2, term: "Asistencia Remota", match: "Experto guía a través de RA." },
+                    { id: 3, term: "Pieza Descatalogada", match: "Impresión 3D a medida." },
+                    { id: 4, term: "Fraude Kilómetros", match: "Registro en Blockchain." },
+                    { id: 5, term: "Pares de Apriete", match: "Información visual con RA." },
+                    { id: 6, term: "Stock de Piezas", match: "Almacén Digital (Diseños 3D)." }
+                ]
+            },
+            {
+                title: "Nivel 3: Detalles Técnicos",
+                msg: "¡Nivel maestro alcanzado!",
+                pairs: [
+                    { id: 1, term: "G-Code", match: "Lenguaje de la impresora 3D." },
+                    { id: 2, term: "Nodo", match: "Ordenador de la red Blockchain." },
+                    { id: 3, term: "Oclusión", match: "Objeto real tapa al virtual en RA." },
+                    { id: 4, term: "Slicer", match: "Software que lamina el modelo 3D." },
+                    { id: 5, term: "Smart Contract", match: "Código que ejecuta pagos solo." },
+                    { id: 6, term: "Hash", match: "Huella digital de un bloque." }
+                ]
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let score = 0;
+        let selectedId = null;
+        let selectedType = null; // 'term' or 'match'
+        let matchedCount = 0;
+
+        function initLevel() {
+            const level = gameLevels[currentLevelIndex];
+            matchedCount = 0;
+            selectedId = null;
+            selectedType = null;
+            
+            document.getElementById('level-display').innerText = `${currentLevelIndex + 1} / ${gameLevels.length}`;
+            const grid = document.getElementById('puzzle-grid');
+            grid.innerHTML = '';
+
+            // Create cards (terms and matches)
+            let cardsData = [];
+            level.pairs.forEach(p => {
+                cardsData.push({ id: p.id, text: p.term, type: 'term' });
+                cardsData.push({ id: p.id, text: p.match, type: 'match' });
+            });
+
+            // Shuffle
+            cardsData.sort(() => Math.random() - 0.5);
+
+            cardsData.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.className = "card bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 flex items-center justify-center text-center cursor-pointer min-h-[100px] hover:border-slate-500";
+                card.dataset.id = data.id;
+                card.dataset.type = data.type;
+                card.innerHTML = `<span class="text-sm font-bold leading-tight">${data.text}</span>`;
+                card.onclick = () => handleCardClick(card);
+                grid.appendChild(card);
+            });
+        }
+
+        function handleCardClick(card) {
+            const id = card.dataset.id;
+            const type = card.dataset.type;
+
+            // If same card clicked, deselect
+            if (card.classList.contains('card-active')) {
+                card.classList.remove('card-active');
+                selectedId = null;
+                selectedType = null;
+                return;
+            }
+
+            // Deselect previous if same type
+            if (selectedType === type) {
+                document.querySelectorAll('.card-active').forEach(c => c.classList.remove('card-active'));
+            }
+
+            card.classList.add('card-active');
+
+            if (selectedId === null) {
+                selectedId = id;
+                selectedType = type;
+            } else {
+                // Check match
+                if (selectedId === id && selectedType !== type) {
+                    // SUCCESS
+                    handleMatch();
+                } else {
+                    // ERROR
+                    handleError(card);
+                }
+            }
+        }
+
+        function handleMatch() {
+            const activeCards = document.querySelectorAll('.card-active');
+            activeCards.forEach(c => {
+                c.classList.remove('card-active');
+                c.classList.add('card-matched');
+                c.classList.add('bg-emerald-600/20');
+            });
+            
+            score += 50;
+            matchedCount++;
+            updateUI();
+
+            if (matchedCount === gameLevels[currentLevelIndex].pairs.length) {
+                setTimeout(showLevelComplete, 600);
+            }
+
+            selectedId = null;
+            selectedType = null;
+        }
+
+        function handleError(card) {
+            const activeCards = document.querySelectorAll('.card-active');
+            activeCards.forEach(c => {
+                c.classList.add('card-error');
+                setTimeout(() => {
+                    c.classList.remove('card-error');
+                    c.classList.remove('card-active');
+                }, 400);
+            });
+            
+            score = Math.max(0, score - 10);
+            updateUI();
+            selectedId = null;
+            selectedType = null;
+        }
+
+        function updateUI() {
+            document.getElementById('score').innerText = score.toString().padStart(3, '0');
+        }
+
+        function showLevelComplete() {
+            const level = gameLevels[currentLevelIndex];
+            document.getElementById('overlay-title').innerText = level.title;
+            document.getElementById('overlay-msg').innerText = level.msg;
+            document.getElementById('overlay').classList.remove('hidden');
+        }
+
+        function nextLevel() {
+            document.getElementById('overlay').classList.add('hidden');
+            currentLevelIndex++;
+            if (currentLevelIndex < gameLevels.length) {
+                initLevel();
+            } else {
+                showFinal();
+            }
+        }
+
+        function showFinal() {
+            document.getElementById('final-score-display').innerText = score;
+            document.getElementById('final-overlay').classList.remove('hidden');
+        }
+
+        // Initialize first level
+        window.onload = initLevel;
+    </script>
+</body>
+</html>

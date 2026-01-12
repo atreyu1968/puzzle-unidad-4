@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master TDH: El Gran Puzzle</title>
+    <title>Master TDH: El Gran Puzzle de 90 Parejas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -13,26 +13,27 @@
 
         .grid-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 0.75rem;
         }
 
         .card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 90px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100px;
+            user-select: none;
         }
 
         .card-active {
-            transform: translateY(-5px) scale(1.02);
+            transform: translateY(-4px);
             border-color: #3b82f6;
             background-color: #1e293b;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
 
         .card-matched {
             opacity: 0;
             pointer-events: none;
-            transform: scale(0.8);
+            transform: scale(0.85);
         }
 
         .card-error {
@@ -43,89 +44,98 @@
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
         }
 
-        ::-webkit-scrollbar { width: 8px; }
+        .level-badge {
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
 
     <div class="max-w-6xl mx-auto px-4 py-6">
-        <!-- Header -->
+        <!-- Cabecera de Estado -->
         <header class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4 border-b border-slate-800 pb-6">
             <div>
-                <h1 class="text-4xl font-black font-cyber tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 uppercase">
-                    TDH ULTIMATE PUZZLE
+                <h1 class="text-3xl font-black font-cyber tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 uppercase">
+                    TDH ULTIMATE CHALLENGE
                 </h1>
-                <p class="text-slate-400 text-xs font-bold tracking-[0.2em] uppercase mt-1">Misión: 100% Trazabilidad Digital</p>
+                <p class="text-slate-500 text-[10px] font-bold tracking-[0.3em] uppercase mt-1 italic">90 conceptos extraídos de la misión</p>
             </div>
             
             <div class="flex gap-3">
-                <div class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-center min-w-[100px]">
-                    <span class="text-[10px] block text-slate-500 font-bold uppercase tracking-widest">Puntos</span>
-                    <span id="score" class="text-xl font-cyber font-bold text-blue-400">0000</span>
+                <div class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-center min-w-[90px]">
+                    <span class="text-[9px] block text-slate-500 font-bold uppercase tracking-widest">Score</span>
+                    <span id="score" class="text-lg font-cyber font-bold text-blue-400">0000</span>
                 </div>
-                <div class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-center min-w-[100px]">
-                    <span class="text-[10px] block text-slate-500 font-bold uppercase tracking-widest">Nivel</span>
-                    <span id="level-display" class="text-xl font-cyber font-bold text-emerald-400">1 / 3</span>
+                <div class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-center min-w-[90px]">
+                    <span class="text-[9px] block text-slate-500 font-bold uppercase tracking-widest">Nivel</span>
+                    <span id="level-display" class="text-lg font-cyber font-bold text-emerald-400">1 / 3</span>
                 </div>
             </div>
         </header>
 
-        <!-- Nivel info y Progreso -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
-            <div class="flex items-center gap-3">
-                <div id="level-icon" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-black">1</div>
+        <!-- Progreso Detallado -->
+        <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-2xl mb-8 flex flex-col md:flex-row items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div id="level-icon" class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-blue-900/20">👁️</div>
                 <div>
-                    <h2 id="level-title" class="font-bold text-lg text-white leading-none">Cargando...</h2>
-                    <p id="level-desc" class="text-xs text-slate-400 mt-1 italic">Prepárate para el desafío técnico.</p>
+                    <h2 id="level-title" class="font-black text-white text-lg leading-tight uppercase tracking-tight">Cargando Nivel...</h2>
+                    <p id="level-desc" class="text-xs text-slate-400 italic">Completa las 3 oleadas para avanzar.</p>
                 </div>
             </div>
-            <div class="w-full md:w-64">
-                <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-widest">
-                    <span>Progreso del nivel</span>
-                    <span id="wave-progress">0/30</span>
+            
+            <div class="flex-1 w-full">
+                <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-widest">
+                    <span>Progreso Global del Nivel</span>
+                    <span id="wave-progress">0 / 30</span>
                 </div>
-                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="bg-blue-500 h-full transition-all duration-500" style="width: 0%"></div>
+                <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-[2px]">
+                    <div id="progress-bar" class="bg-gradient-to-r from-blue-600 to-indigo-400 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Puzzle Grid -->
-        <div id="puzzle-grid" class="grid-cards">
-            <!-- Inyectado por JS -->
+        <!-- Rejilla de Juego -->
+        <div id="puzzle-grid" class="grid-cards min-h-[450px]">
+            <!-- Inyectado por JavaScript -->
         </div>
 
-        <!-- Overlay Nivel Completado -->
-        <div id="overlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
+        <!-- Notificación de Oleada -->
+        <div id="wave-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-6 py-3 rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-2xl opacity-0 transition-opacity pointer-events-none z-40">
+            ¡Oleada Completada! Cargando nuevos conceptos...
+        </div>
+
+        <!-- Overlays -->
+        <div id="overlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 hidden p-6">
             <div class="bg-slate-900 p-8 rounded-3xl border border-slate-700 text-center max-w-sm w-full shadow-2xl">
-                <div class="text-6xl mb-6">⚙️</div>
-                <h2 class="text-2xl font-black mb-2 font-cyber uppercase tracking-tight" id="overlay-level-name">¡Nivel 1 Superado!</h2>
-                <p class="text-slate-400 mb-8 text-sm">Has demostrado un dominio excepcional de las herramientas digitales.</p>
-                <button onclick="nextLevel()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl transition-all uppercase tracking-widest text-xs shadow-lg shadow-blue-900/40">
-                    Siguiente Fase
+                <div class="text-5xl mb-4" id="overlay-icon">🚀</div>
+                <h2 class="text-2xl font-black mb-2 font-cyber uppercase tracking-tight text-white" id="overlay-title">¡Nivel Superado!</h2>
+                <p class="text-slate-400 mb-8 text-sm leading-relaxed" id="overlay-msg">Has demostrado un dominio total de este bloque tecnológico.</p>
+                <button onclick="nextLevel()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-all uppercase tracking-widest text-xs shadow-lg shadow-blue-900/40">
+                    Siguiente Desafío
                 </button>
             </div>
         </div>
 
-        <!-- Pantalla Final -->
-        <div id="final-overlay" class="fixed inset-0 bg-slate-950/98 backdrop-blur-xl flex items-center justify-center z-50 hidden p-4">
+        <div id="final-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center z-50 hidden p-6">
             <div class="text-center max-w-lg">
-                <div class="inline-block p-4 bg-emerald-500/20 rounded-full mb-6">
-                    <svg class="w-16 h-16 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/50">
+                    <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
                 </div>
-                <h2 class="text-5xl font-black mb-2 font-cyber text-white tracking-tighter italic">CERTIFICADO TDH</h2>
-                <p class="text-emerald-400 font-bold mb-8 uppercase tracking-widest text-sm">Nivel: Consultor Experto 4.0</p>
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl mb-10 shadow-inner">
-                    <p class="text-slate-500 text-xs uppercase font-black mb-2">Puntuación de Misión</p>
-                    <div class="text-7xl font-black font-cyber text-white" id="final-score">0000</div>
+                <h2 class="text-5xl font-black mb-2 font-cyber text-white tracking-tighter italic uppercase">CERTIFICADO MASTER TDH</h2>
+                <p class="text-blue-400 font-bold mb-8 uppercase tracking-[0.3em] text-xs">Puntuación Final de Misión</p>
+                <div class="bg-slate-900 border border-slate-800 p-10 rounded-[3rem] mb-10 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
+                    <div class="text-8xl font-black font-cyber text-white" id="final-score">0000</div>
                 </div>
-                <button onclick="location.reload()" class="bg-white text-slate-950 px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform shadow-xl">
+                <button onclick="location.reload()" class="bg-white text-slate-950 px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
                     Reiniciar Sistema
                 </button>
             </div>
@@ -135,111 +145,114 @@
     <script>
         const gameLevels = [
             {
-                title: "Inmersión y Realidad (RA/RV)",
-                icon: "👁️",
+                title: "Bloque 1: Cloud & Digitalización",
+                icon: "☁️",
+                desc: "Domina la infraestructura y la gestión del taller.",
                 pairs: [
-                    { id: 1, term: "Realidad Virtual", match: "Inmersión 100% digital" },
-                    { id: 2, term: "Realidad Aumentada", match: "Capa digital sobre mundo real" },
-                    { id: 3, term: "RV: Alto Voltaje", match: "Entrenamiento sin riesgo eléctrico" },
-                    { id: 4, term: "RA: HoloLens", match: "Dispositivo manos libres" },
-                    { id: 5, term: "RA: Soporte Remoto", match: "Experto guía a distancia" },
-                    { id: 6, term: "RV: Gafas Opacas", match: "Aislamiento total del taller" },
-                    { id: 7, term: "RA: Tablet/Móvil", match: "Visualización RA accesible" },
-                    { id: 8, term: "RV: Simulador", match: "Entrenamiento por repetición" },
-                    { id: 9, term: "RA: Par de Apriete", match: "Dato visual sobre el tornillo" },
-                    { id: 10, term: "RV: Arco Eléctrico", match: "Consecuencia visual de un error" },
-                    { id: 11, term: "RA: Diagrama Pins", match: "Esquema sobre conector real" },
-                    { id: 12, term: "RV: Prevención", match: "Ahorro en accidentes laborales" },
-                    { id: 13, term: "RA: Oclusión", match: "Objeto real tapa al virtual" },
-                    { id: 14, term: "TDH", match: "Catalizadores digitales" },
-                    { id: 15, term: "RV: Formación", match: "Cero desgaste de piezas reales" },
-                    { id: 16, term: "RA: Manual Vivo", match: "Instrucciones que flotan" },
-                    { id: 17, term: "Inmersión", match: "Sensación de estar dentro" },
-                    { id: 18, term: "Asistencia RA", match: "Dibujar sobre vista del técnico" },
-                    { id: 19, term: "RV: Baterías", match: "Práctica de seguridad crítica" },
-                    { id: 20, term: "RA: Eficiencia", match: "Consultar datos sin soltar llave" },
-                    { id: 21, term: "RV: Escenario", match: "Entorno 3D generado por PC" },
-                    { id: 22, term: "RA: Identificación", match: "Reconocer piezas con la cámara" },
-                    { id: 23, term: "RV: Háptica", match: "Sentir tacto con guantes" },
-                    { id: 24, term: "RA: Marcadores", match: "Imágenes que activan la info" },
-                    { id: 25, term: "RV: Costes", match: "Menor inversión en componentes" },
-                    { id: 26, term: "RA: Superposición", match: "Añadir gráficos a la realidad" },
-                    { id: 27, term: "RV: Psicología", match: "Reduce el estrés ante riesgos" },
-                    { id: 28, term: "RA: Tiempo Real", match: "Datos que cambian al instante" },
-                    { id: 29, term: "RV: Virtualización", match: "Copia digital del entorno" },
-                    { id: 30, term: "RA: Navegación", match: "Guía paso a paso visual" }
+                    { id: 1, term: "IaaS", match: "Alquiler de hardware/servidores" },
+                    { id: 2, term: "PaaS", match: "Plataforma para crear apps" },
+                    { id: 3, term: "SaaS", match: "Software listo (Gmail/Netflix)" },
+                    { id: 4, term: "La Nube", match: "No es humo, es eficiencia" },
+                    { id: 5, term: "Analogía IaaS", match: "Alquilar el local del restaurante" },
+                    { id: 6, term: "Analogía PaaS", match: "Tener cocina y fogones listos" },
+                    { id: 7, term: "Analogía SaaS", match: "Ir a mesa puesta y comer" },
+                    { id: 8, term: "DMS", match: "Software de gestión de taller" },
+                    { id: 9, term: "Papel Carbón", match: "Método obsoleto de Manolo" },
+                    { id: 10, term: "Recepción Activa", match: "Inspección digital con Tablet" },
+                    { id: 11, term: "Agenda Papel", match: "Riesgo de citas duplicadas" },
+                    { id: 12, term: "Facturación DMS", match: "Automática desde la orden" },
+                    { id: 13, term: "Recambios Cloud", match: "Stock visible en tiempo real" },
+                    { id: 14, term: "Ahorro CAPEX", match: "No comprar servidores caros" },
+                    { id: 15, term: "Mantenimiento IT", match: "Lo hace el proveedor de SaaS" },
+                    { id: 16, term: "Seguridad Cloud", match: "Backups automáticos seguros" },
+                    { id: 17, term: "Escalabilidad", match: "Crecer sin comprar más PCs" },
+                    { id: 18, term: "Firma Digital", match: "Validez legal en la Tablet" },
+                    { id: 19, term: "Checklist Digital", match: "Fotos de daños al recibir" },
+                    { id: 20, term: "Historial Clínico", match: "Vida pasada de cada vehículo" },
+                    { id: 21, term: "LOPD", match: "Protección de datos del cliente" },
+                    { id: 22, term: "SaaS: Ejemplo", match: "Office 365 o Spotify" },
+                    { id: 23, term: "Servidor Físico", match: "El plan erróneo de Manolo" },
+                    { id: 24, term: "Hardware", match: "La parte física (hierro)" },
+                    { id: 25, term: "Virtualización", match: "Correr software en servidores remotos" },
+                    { id: 26, term: "Conectividad", match: "Requisito para trabajar en la nube" },
+                    { id: 27, term: "Multi-acceso", match: "Entrar al taller desde casa" },
+                    { id: 28, term: "Automatización", match: "Menos errores humanos" },
+                    { id: 29, term: "Consultor Junior", match: "Vuestro rol en el proyecto" },
+                    { id: 30, term: "Modernización", match: "Objetivo de 'El Pistón'" }
                 ]
             },
             {
-                title: "Fabricación y Prototipos (3D)",
-                icon: "🖨️",
+                title: "Bloque 2: Latencia & Realidades",
+                icon: "⚡",
+                desc: "Velocidad de decisión y herramientas visuales.",
                 pairs: [
-                    { id: 31, term: "Aditiva", match: "Fabricación capa a capa" },
-                    { id: 32, term: "Sustractiva", match: "Quitar material (fresadora)" },
-                    { id: 33, term: "PLA", match: "Plástico biodegradable común" },
-                    { id: 34, term: "ABS/ASA", match: "Resistentes al calor y UV" },
-                    { id: 35, term: "Slicer", match: "Software laminador" },
-                    { id: 36, term: "G-Code", match: "Instrucciones para la máquina" },
-                    { id: 37, term: "STL", match: "Formato de archivo 3D estándar" },
-                    { id: 38, term: "Prototipado", match: "Piezas de prueba rápidas" },
-                    { id: 39, term: "Descatalogados", match: "Piezas para coches clásicos" },
-                    { id: 40, term: "Útiles a medida", match: "Herramientas de diseño propio" },
-                    { id: 41, term: "Warping", match: "Deformación por frío/calor" },
-                    { id: 42, term: "Post-procesado", match: "Lijado y pintado final" },
-                    { id: 43, term: "Filamento", match: "Hilo de material para imprimir" },
-                    { id: 44, term: "Boquilla", match: "Punta por donde sale el material" },
-                    { id: 45, term: "Bajo demanda", match: "Fabricar solo lo necesario" },
-                    { id: 46, term: "Almacén Digital", match: "Planos en la nube, no cajas" },
-                    { id: 47, term: "Fibra Carbono", match: "Filamento de alta resistencia" },
-                    { id: 48, term: "Residuos", match: "Ahorro ecológico de material" },
-                    { id: 49, term: "Escaneo 3D", match: "Copiar pieza real a digital" },
-                    { id: 50, term: "Logística", match: "Evita transporte de recambios" },
-                    { id: 51, term: "Extrusor", match: "Empuja el hilo hacia la punta" },
-                    { id: 52, term: "Cama Caliente", match: "Base donde se pega la pieza" },
-                    { id: 53, term: "Relleno (Infill)", match: "Densidad interna de la pieza" },
-                    { id: 54, term: "Soportes", match: "Estructuras para partes al aire" },
-                    { id: 55, term: "Capas", match: "Niveles de altura de impresión" },
-                    { id: 56, term: "Nylon", match: "Material flexible y duro" },
-                    { id: 57, term: "Resina", match: "Líquido para alta precisión" },
-                    { id: 58, term: "Tolerancia", match: "Margen de error en medidas" },
-                    { id: 59, term: "CAD", match: "Software de diseño original" },
-                    { id: 60, term: "Malla 3D", match: "Red de puntos del diseño" }
+                    { id: 31, term: "Latencia", match: "Retraso en milisegundos (ms)" },
+                    { id: 32, term: "Edge Computing", match: "Procesar datos en el coche" },
+                    { id: 33, term: "Fog Computing", match: "Capa intermedia (antenas)" },
+                    { id: 34, term: "Analogía Edge", match: "Médula espinal (reflejos)" },
+                    { id: 35, term: "Analogía Cloud", match: "Cerebro (decisión lenta/profunda)" },
+                    { id: 36, term: "Frenado AEB", match: "Función 100% Edge" },
+                    { id: 37, term: "Mapas GPS", match: "Función 100% Cloud" },
+                    { id: 38, term: "Nodo Fog", match: "Semáforo o antena inteligente" },
+                    { id: 39, term: "Caso Hielo", match: "Aviso local coche a coche" },
+                    { id: 40, term: "V2I", match: "Vehículo a Infraestructura" },
+                    { id: 41, term: "Realidad Virtual", match: "Inmersión digital completa" },
+                    { id: 42, term: "Realidad Aumentada", match: "Info digital sobre lo real" },
+                    { id: 43, term: "RV: Alto Voltaje", match: "Práctica sin electrocución" },
+                    { id: 44, term: "RA: Gafas", match: "Manos libres para el mecánico" },
+                    { id: 45, term: "Asistencia Remota", match: "Experto guía por videollamada RA" },
+                    { id: 46, term: "Simulador Vuelo", match: "Equivalente a formación en RV" },
+                    { id: 47, term: "Par de Apriete", match: "Dato RA sobre el tornillo" },
+                    { id: 48, term: "Oclusión", match: "Mundo real tapa al virtual" },
+                    { id: 49, term: "Inmersión", match: "Engañar a los sentidos" },
+                    { id: 50, term: "Arco Eléctrico", match: "Simulación de peligro en RV" },
+                    { id: 51, term: "Checklist RA", match: "Pasos flotando ante los ojos" },
+                    { id: 52, term: "Sensores Coche", match: "Ojos del Edge Computing" },
+                    { id: 53, term: "Cámaras/Radar", match: "Fuentes de datos de seguridad" },
+                    { id: 54, term: "Mantenimiento RV", match: "Ahorro de motores reales" },
+                    { id: 55, term: "Error Seguro", match: "Equivocarse en virtual no mata" },
+                    { id: 56, term: "Diagramas RA", match: "Ver cables internos por fuera" },
+                    { id: 57, term: "Formación 4.0", match: "Aprender haciendo (virtual)" },
+                    { id: 58, term: "Big Data", match: "Analizar millones de trayectos" },
+                    { id: 59, term: "Coordinación Cruce", match: "Uso típico de Fog Computing" },
+                    { id: 60, term: "Tiempo Real", match: "Decisiones en milisegundos" }
                 ]
             },
             {
-                title: "Confianza y Datos (Blockchain)",
+                title: "Bloque 3: 3D, Blockchain & TDH",
                 icon: "🔗",
+                desc: "Fabricación, confianza y trazabilidad total.",
                 pairs: [
-                    { id: 61, term: "Blockchain", match: "Notario digital distribuido" },
-                    { id: 62, term: "Inalterable", match: "No se puede borrar ni editar" },
-                    { id: 63, term: "Descentralizado", match: "Sin un dueño único de los datos" },
-                    { id: 64, term: "Pasaporte Digital", match: "Historial de vida del vehículo" },
-                    { id: 65, term: "Hash", match: "Firma digital de cada bloque" },
-                    { id: 66, term: "Nodo", match: "Cada ordenador de la red" },
-                    { id: 67, term: "Smart Contract", match: "Código que autoejecuta pagos" },
-                    { id: 68, term: "Fraude KM", match: "Imposible con Blockchain" },
-                    { id: 69, term: "Trazabilidad", match: "Ruta de la pieza de cuna a tumba" },
-                    { id: 70, term: "Transparencia", match: "Datos visibles y verificables" },
-                    { id: 71, term: "Economía Circular", match: "Saber el SoH de baterías usadas" },
-                    { id: 72, term: "Tokenización", match: "Digitalizar valor de activos" },
-                    { id: 73, term: "Criptografía", match: "Seguridad mediante matemáticas" },
-                    { id: 74, term: "Consenso", match: "Acuerdo entre nodos para validar" },
-                    { id: 75, term: "Privacidad", match: "Datos anónimos pero seguros" },
-                    { id: 76, term: "Gemelo Digital", match: "Simulación unida a datos reales" },
-                    { id: 77, term: "QR Técnico", match: "Acceso al historial en Blockchain" },
-                    { id: 78, term: "Garantías", match: "Fechas imposibles de manipular" },
-                    { id: 79, term: "Sinergia", match: "Combinar RA + 3D + Blockchain" },
-                    { id: 80, term: "ITV Digital", match: "Registro oficial inalterable" },
-                    { id: 81, term: "Mantenimiento", match: "Libro de revisiones blindado" },
-                    { id: 82, term: "Cadena Bloques", match: "Estructura de datos enlazados" },
-                    { id: 83, term: "Segunda Mano", match: "Compra segura con datos reales" },
-                    { id: 84, term: "Derechos Autor", match: "Pago a fabricante por diseño 3D" },
-                    { id: 85, term: "Validación", match: "Comprobar que el dato es real" },
-                    { id: 86, term: "Distribución", match: "Copias del libro en mil sitios" },
-                    { id: 87, term: "Seguridad 4.0", match: "Protección contra hackeos" },
-                    { id: 88, term: "Huella Carbono", match: "Rastreo de emisiones reales" },
-                    { id: 89, term: "Originalidad", match: "Certificar pieza no falsa" },
-                    { id: 90, term: "Futuro Taller", match: "Confianza total del cliente" }
+                    { id: 61, term: "Fab. Aditiva", match: "Impresión 3D (capa a capa)" },
+                    { id: 62, term: "Fab. Sustractiva", match: "Quitar material (torno)" },
+                    { id: 63, term: "PLA", match: "Filamento plástico biodegradable" },
+                    { id: 64, term: "ABS / ASA", match: "Plásticos resistentes al exterior" },
+                    { id: 65, term: "G-Code", match: "Lenguaje de la impresora 3D" },
+                    { id: 66, term: "Slicer", match: "Software que lamina la pieza" },
+                    { id: 67, term: "Útiles Propios", match: "Herramientas hechas en el taller" },
+                    { id: 68, term: "Pieza Descatalogada", match: "Salvación para coches clásicos" },
+                    { id: 69, term: "Blockchain", match: "Notario digital inalterable" },
+                    { id: 70, term: "Descentralizado", match: "Sin dueño único del servidor" },
+                    { id: 71, term: "Inalterable", match: "No se puede borrar ni editar" },
+                    { id: 72, term: "Pasaporte Digital", match: "Vida completa del coche en red" },
+                    { id: 73, term: "Fraude de KM", match: "Imposible con Blockchain" },
+                    { id: 74, term: "Hash", match: "Huella digital de cada bloque" },
+                    { id: 75, term: "Nodo", match: "Cada PC que guarda la cadena" },
+                    { id: 76, term: "Smart Contract", match: "Acuerdo que se paga solo" },
+                    { id: 77, term: "Trazabilidad", match: "Ruta de la pieza de cuna a tumba" },
+                    { id: 78, term: "Economía Circular", match: "Saber el estado real de baterías" },
+                    { id: 79, term: "Tokenización", match: "Dividir valor en partes digitales" },
+                    { id: 80, term: "Criptografía", match: "Seguridad por matemáticas" },
+                    { id: 81, term: "TDH", match: "Tecnologías Habilitadoras" },
+                    { id: 82, term: "Catalizadores", match: "Aceleran la transformación" },
+                    { id: 83, term: "Gemelo Digital", match: "Réplica virtual interactiva" },
+                    { id: 84, term: "STL", match: "Archivo estándar de diseño 3D" },
+                    { id: 85, term: "Warping", match: "Deformación por calor en 3D" },
+                    { id: 86, term: "Post-procesado", match: "Lijado y acabado de la pieza" },
+                    { id: 87, term: "Filamento", match: "El 'hilo' de la impresora 3D" },
+                    { id: 88, term: "Consenso", match: "Acuerdo entre nodos para validar" },
+                    { id: 89, term: "Confianza", match: "Lo que Blockchain da al cliente" },
+                    { id: 90, term: "Taller del Futuro", match: "Sinergia de todas las TDH" }
                 ]
             }
         ];
@@ -261,13 +274,13 @@
             document.getElementById('level-display').innerText = `${currentLevel + 1} / 3`;
             document.getElementById('level-title').innerText = levelData.title;
             document.getElementById('level-icon').innerText = levelData.icon;
-            document.getElementById('wave-progress').innerText = `${matchedInLevel}/30`;
-            document.getElementById('progress-bar').style.width = `${(matchedInLevel/30)*100}%`;
+            
+            updateUI();
             
             const grid = document.getElementById('puzzle-grid');
             grid.innerHTML = '';
 
-            // Obtener 10 parejas de la oleada actual
+            // Obtener oleada
             const start = waveIndex * PAIRS_PER_WAVE;
             const end = start + PAIRS_PER_WAVE;
             const currentPairs = levelData.pairs.slice(start, end);
@@ -278,15 +291,14 @@
                 cards.push({ id: p.id, text: p.match, type: 'match' });
             });
 
-            // Mezclar
             cards.sort(() => Math.random() - 0.5);
 
             cards.forEach(c => {
                 const el = document.createElement('div');
-                el.className = "card bg-slate-900 border-2 border-slate-800 rounded-xl p-3 flex items-center justify-center text-center cursor-pointer hover:border-slate-600 shadow-lg";
+                el.className = "card bg-slate-900 border-2 border-slate-800 rounded-2xl p-4 flex items-center justify-center text-center cursor-pointer hover:border-slate-500 shadow-xl";
                 el.dataset.id = c.id;
                 el.dataset.type = c.type;
-                el.innerHTML = `<span class="text-xs font-bold leading-tight">${c.text}</span>`;
+                el.innerHTML = `<span class="text-[11px] md:text-xs font-bold leading-tight px-1">${c.text}</span>`;
                 el.onclick = () => handleSelect(el);
                 grid.appendChild(el);
             });
@@ -295,7 +307,6 @@
         function handleSelect(el) {
             if (el.classList.contains('card-matched')) return;
 
-            // Si clica la misma, deseleccionar
             if (el.classList.contains('card-active')) {
                 el.classList.remove('card-active');
                 selectedId = null;
@@ -303,7 +314,6 @@
                 return;
             }
 
-            // Deseleccionar anterior si es del mismo tipo
             if (selectedType === el.dataset.type) {
                 document.querySelectorAll('.card-active').forEach(c => c.classList.remove('card-active'));
             }
@@ -334,14 +344,14 @@
             matchedInLevel++;
             updateUI();
 
-            // ¿Oleada terminada?
             const currentWaveMatches = matchedInLevel % PAIRS_PER_WAVE;
             if (currentWaveMatches === 0 && matchedInLevel > 0) {
                 if (matchedInLevel < 30) {
+                    showWaveToast();
                     waveIndex++;
-                    setTimeout(renderLevel, 600);
+                    setTimeout(renderLevel, 1200);
                 } else {
-                    setTimeout(levelComplete, 600);
+                    setTimeout(levelComplete, 800);
                 }
             }
 
@@ -366,12 +376,19 @@
 
         function updateUI() {
             document.getElementById('score').innerText = score.toString().padStart(4, '0');
-            document.getElementById('wave-progress').innerText = `${matchedInLevel}/30`;
+            document.getElementById('wave-progress').innerText = `${matchedInLevel} / 30`;
             document.getElementById('progress-bar').style.width = `${(matchedInLevel/30)*100}%`;
         }
 
+        function showWaveToast() {
+            const toast = document.getElementById('wave-toast');
+            toast.style.opacity = "1";
+            setTimeout(() => toast.style.opacity = "0", 2000);
+        }
+
         function levelComplete() {
-            document.getElementById('overlay-level-name').innerText = `¡${gameLevels[currentLevel].title} dominado!`;
+            document.getElementById('overlay-title').innerText = `¡Nivel ${currentLevel + 1} Completado!`;
+            document.getElementById('overlay-msg').innerText = gameLevels[currentLevel].desc;
             document.getElementById('overlay').classList.remove('hidden');
         }
 
